@@ -129,15 +129,14 @@ can be found on the IOOS Github site\footnote{\url{https://github.com/ioos/model
 
 
 
-\section{The IOOS model data interoperability system}
+\section{The IOOS model data framework}
 
-The IOOS model data infrastructure is built around community and
+The IOOS model data framework is built around community and
 international standards for data models and web services (de La
 Beaujardi\`{e}re et~al., 2009; Howlett et~al., 2014). The
-infrastructure requires that gridded data be delivered via the OPeNDAP
-service with Climate and Forecast (CF) Conventions, and for images of data, via WMS. OPeNDAP is used
-because Open Geospatial Consortium (OGC) services are not currently capable of delivering CF
-compliant model data in a~standardized way.
+infrastructure requires that gridded data be delivered via the Open-source Project for a Network Data Access Protocol (OPeNDAP)
+service with Climate and Forecast (CF) Conventions, and for images of data, via the OGC Web Map Service (WMS). OPeNDAP is used
+because Open Geospatial Consortium (OGC) services are not currently capable of delivering CF-compliant model data in a~standardized way.
 
 Although a~variety of tools can be used to deliver OPeNDAP and WMS
 services, one convenient method is to utilize the THREDDS Data Server
@@ -154,7 +153,7 @@ CF Conventions which delivers the data through
 a~variety of web services, including OPeNDAP, WMS and NetCDF Subset
 Service.  It also includes a~ncISO service that generates an ISO~19115
 compliant metadata record for each dataset based on the attributes in the
-input files and the NcML.
+input files and the NcML (Fig.~1). 
 
 In addition to tools to provide standardized data distribution and
 access, it is also useful to have tools that allow investigators to
@@ -162,7 +161,7 @@ search for datasets based on geospatial extent, time range, keywords and other d
 (e.g. variables of interest).  
 There are many tools that enable
 searching across metadata that describe distributed geospatial
-datasets: GeoNetwork opensource, Geoportal Server, GI-cat, CKAN, DKAN
+datasets: GeoNetwork, Geoportal Server, GI-cat, CKAN, DKAN
 and pycsw. In particular, Python-based CKAN\footnote{CKAN, The open
   source data portal software, available at \url{http://ckan.org/}.}
 and its Drupal-based competitor DKAN\footnote{DKAN,
@@ -171,16 +170,13 @@ governmental open data portals (see for instance data.gov,
 data.gov.au, data.gov.uk). These tools 
  provide off-the-shelf
 ready-to-use solutions for efficient data discovery. The CKAN search
-interface includes Google-like fuzzy search over keywords, faceted
+interface includes fuzzy search over keywords, faceted
 filtering for dataset browsing, and, if the spatial extension is
-enabled, geographic filtering and preview of datasets. It includes
-an~OGC Catalogue Service for the Web (CSW) harvester and spatial datasets can be
-queried through the same standard, for example using
-pycsw, a~Python
-implementation of the OGC CSW. The interface and the underlying
+enabled, geographic filtering and preview of datasets.  CKAN can also accept queries
+using the OGC Catalogue Service for the Web (CSW) by installing a plugin for pycsw, a Python-based implementation implementation of the CSW service.  The interface and the underlying
 catalog engine can be customized to achieve more powerful data
 discovery solutions. However, its customization through extensions
-development may be too technically challenging for smaller research groups.
+development may be too technically challenging for smaller research groups.  For these groups, a stand-along instance of pycsw allows sophisticated CSW queries in a lightweight, easy to install, OGC-certified compliant package \footnote{\url{http://pycsw.org/}.}
 
 \section{A~procedure for small research groups}
 
@@ -195,11 +191,10 @@ Transport Modeling Group.
 
 \subsection{Data delivery}
 
-Delivery of data is accomplished with the THREDDS Data Server
-(TDS). The first step is to install the TDS, a~Java Servlet
+Delivery of data is accomplished with the TDS. The first step is to install the TDS, a~Java Servlet
 application which can be installed in a~few hours following the TDS
 administration
-tutorial\footnote{\url{http://www.unidata.ucar.edu/software/thredds/current/tds/tutorial/index.html}.}. The
+tutorial\footnote{\url{http://www.unidata.ucar.edu/software/thredds/current/tds/tutorial/index.html}.}, or even faster by using a Docker container\footnote{\url{https://hub.docker.com/r/axiom/docker-thredds/}.}. The
 installation is a~cookbook procedure not involving special knowledge
 or skills on the part of the system administrator. Once installed, the
 TDS is configured to dynamically scan targeted directories for data of
@@ -209,6 +204,8 @@ scanned for files ending with ``.nc, .cdf, .grib, .grb and
 this directory, or in a subdirectory below this directory, are
 immediately accessible via the TDS.
 
+The TDS can be installed on a server with modest computational resources, since the TDS doesn't actually do much work.  It does, however, benefit from having a moderate amount of memory available (e.g. more than 4GB).  In addition, because data requests to the TDS extract data in disk, users of the TDS will benefit from faster disk access (e.g. local disk over remotely-mounted disk). 
+
 With the TDS configured with a~\textit{datasetScan}, modelers can
 create a~subdirectory for their simulation, deposit the collection of
 NetCDF (or GRIB) files that make up the simulation, and then add
@@ -217,19 +214,18 @@ information the TDS uses to virtually aggregate the data and add or modify
 metadata to meet the CF Conventions. When this NcML file is accessed
 through the TDS, the aggregated standardized dataset can then be
 accessed through all the TDS web services, including OPeNDAP, NetCDF
-Subset Service, WMS and the ncISO metadata service. This NcML file
-approach is convenient for model data providers as no reload or
-restart of the TDS is necessary.  This is clearly an advantage, as
-there is often a~large collection of hindcasts, simulations testing
+Subset Service, WMS and the ncISO metadata service.  If the dataset has one dimensional longitude, latitude and depth coorindates, it can also be delivered via the OGC Web Coverage Service. This NcML approach is convenient for model data providers as no reload or
+restart of the TDS is necessary.  This is quite useful, as modelers often have a~large collection of simulations that test
 the sensitivity to changes in parameterizations, data
 assimilation techniques, boundary conditions, etc.
 
-For forecast models, a~different approach is needed, and the NcML must
-be added to static catalogs. While new forecast data can be added to
+For forecast models, a slightly different approach is needed, as forecast time periods
+overlap and the files cannot be simply joined along the time dimension.  In this case, the NcML Forecast Model Run Collection is used, which virtually creates a "best time series"  and other dataset views of the forecast collection.  This type of NcML must
+be added to static TDS catalogs. While new forecast data can be added to
 forecast aggregation without reloading the server, any modification to
 the static catalogs requires a~restart of the TDS. This is usually not
 a~major issue as groups typically only have one or two forecast models
-running.
+running.   For details of how to create NcML for different types of model data, see the 
 
 \subsection{Data access}
 
@@ -258,15 +254,15 @@ NetCDF C library behind a~Python interface.
 
 \subsection{Data search}
 
-We use pycsw\footnote{Pycsw, \url{http://pycsw.org/}.}, which can be installed
-in minutes using the defaults settings, for cataloging
-the datasets and providing a~standardized search capability.
+We use pycsw, a lightweight package that can be installed
+in minutes, for cataloging
+the datasets and providing a~standardized search capability.  Although it is easy to install, configure and maintain, it provides rapid responses to sophisticated CSW queries which typically include a geospatial bounding box, a temporal extent, and text strings that should be either included or excluded. 
 It ingests ISO~19115 compliant metadata, and can be controlled via simple command
 line arguments, providing easy scripting capability.
 
 To control which datasets are harvested, we run a~Python script that
 crawls specific local or remote THREDDS catalogs, and enables
-filtering on a~dataset by dataset level (see the code in Fig.~1). For
+filtering on a~dataset by dataset level (see the code in Fig.~2). For
 example, we can specify for a~specific THREDDS catalog that metadata
 from .ncml files should be harvested, but data from .nc files should be
 ignored. For hindcast datasets configured with the
@@ -280,8 +276,9 @@ periodically, we can run the Python script regularly using a~scheduler
 
 The WMS services included in the
 THREDDS Data Server are provided by the ncWMS package (Blower et~al.,
-2013), which introduced some important extensions to effectively create maps from large multidimensional arrays of data.  The most important of these extensions are the ability to specify color scale ranges.  Fixed image representations are appropriate for some datasets, but as users zoom from global scale to local bays, and move from winter to summer data, they need to be able to control the color range to see important structure.  The TDS also includes the Godiva2 WMS client which allows for
-simple preview of individual datasets by providing a web-based GUI that interfaces with the ncWMS services (Blower et~al., 2009).
+2013), which introduced some important extensions to effectively create maps from large multidimensional arrays of data.  The most important of these extensions are the ability to specify color scale ranges.  The OGC originally developed WMS to deliver static images in a variety of projections in response to queries that specified a specific bounding box and time.  The TDS ncWMS extends this to deliver dynamically-generated images that map  data onto color scales and color ranges specified by the user.  This allows users, for example, to effectively explore structure from global scale to local bays, and from winter to summer conditions.  
+
+There are many clients that can consume WMS services, including GIS packages such as ArcGIS and QGIS, but these don't typically provide support for the custom extensions provided by ncWMS.  Fortunately, the TDS also includes the Godiva2 WMS client which allows for simple preview of individual datasets by providing a web-based GUI that interfaces with the ncWMS services (Blower et~al., 2009).  
 
 \section{Use cases}
 
@@ -331,7 +328,7 @@ To demonstrate the approach, we first extracted sea surface salinity from all RE
 formulating a spatio-temproal CSW filtering for the REP14-MED region and time period in Matlab$^{\text{\textregistered}}$, including a search for the text
 string ``sea\_water\_salinity'', the CF Standard Name for salinity. This search returned metadata records from four datasets that matched the criteria, and then obtained the OPeNDAP endpoints from the metadata records. 
 We then opened each endpoint in Matlab$^{\text{\textregistered}}$ using NCTOOLBOX and extracted the sea surface salinity data for a~specific time during the REP14-MED
-experiment (the results are shown in Fig.~3). Finally, we extracted virtual glider data from the four models along a~glider track, using
+experiment (the results are shown in Fig.~3). Finally, we compared interpolated glider data to extracted profiles from four models along the~glider track, using
 the NC\_GENSLICE routine from NCTOOLBOX (the results are shown in Fig.~4), demonstrating that NCTOOLBOX was able to automatically
 determine the horizontal and vertical coordinates without model specific code.
 
@@ -363,7 +360,7 @@ and Sediment Transport (COAWST) model, and often many simulations are
 performed as part of a~sensitivity study, varying different forcing
 and configuration parameters to determine their importance. Each
 simulation typically produces a~collection of NetCDF files that are
-not completely CF Convention compliant.
+not completely CF-compliant.
 
 As in the CMRE case, we used the THREDDS server configured with
 \textit{datasetScan}, so that researchers could simply add NcML files
