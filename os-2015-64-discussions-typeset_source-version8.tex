@@ -10,8 +10,8 @@
 
 \affil[1]{USGS Woods Hole Coastal and Marine Science Center, Woods Hole,
 MA, USA}
-\affil[2]{NATO STO Centre for Maritime Research and Experimentation, La
-Spezia, SP, Italy}
+\affil[2]{NATO Science & Technology Organization, Centre for Maritime Research and Experimentation, La
+Spezia, Italy}
 
 
 \correspondence{R.~P.~Signell (rsignell@usgs.gov)}
@@ -39,13 +39,10 @@ Spezia, SP, Italy}
   have not. The penetration of this approach into the research
   community, where IT resources are limited, can be dramatically
   improved by: (1) making it simple for providers to enable web service
-  access to existing output files; (2) using technology that
-  is free, and that is easy to deploy and configure; and (3) providing
-  tools to communicate with web services that work in existing
+  access to existing output files; (2) using free technologies that are easy to deploy and configure; and (3) providing standardized, service-based tools that work in existing
   research environments. We present
-  a~simple, local brokering approach that lets modelers continue
-  producing files that work with their existing tools, but virtually aggregates and standardizes the data so that new standardized tools can also be used. The goal here is convince that a standardized framework is useful and that it can be
-implemented with modest effort using free software components. We use 
+  a~simple, local brokering approach that lets modelers continue to use their existing files and tools, while
+  serving virtual datasets that can be used with new standardized tools.  The goal is to convince modelers that a standardized framework is not only useful, but can be implemented with modest effort using free software components. We use 
   NetCDF Markup Language for data aggregation and standardization, the THREDDS Data Server  for data delivery, pycsw for data search, NCTOOLBOX
   (Matlab$^{\text{\textregistered}}$\footnote{Mention of trade names
     or commercial products does not constitute endorsement or
@@ -74,10 +71,15 @@ serve these data to the public using standardized web services. Even
 for data that are not meant for public consumption, use of a~private
 service-based approach can make working with data within a~research
 group more effective. These data typically come from models using
-different formats and conventions, and a~harmonization effort allows
+different conventions for specifying horizontal and vertical grid information, time units, variable attributes, requiring model specific tools. 
+
+Standardization allows
 the development of common tools that can access data from any model,
-removing the need for model specific code. This makes it possible for
-researchers to spend less time on routine data tasks, and more time
+removing the need for model specific code.  
+ In addition, simply keeping track of and locating simulations within a research group can be challenging.  
+ Standardization allows catalogueing of simulations and searches that return only datasets of interest.  
+A standardized framework makes it possible for
+researchers to spend less time on routine data tasks and more time
 doing science.
 
 The capabilities of distributed, federated data systems for both model
@@ -117,15 +119,19 @@ the world, which can meet data publishing requirements required by
 government agencies as well as plugging into an international network
 of data providers.
 
+
+The main objectives of the paper are  to (1) highlight the benefits of
+a standardized framework for ocean data, specifically in terms of
+facilitating scientists willing to share their data and  enabling them to
+effectively access  harmonized data (2) to demonstrate that a standardized
+framework can be implemented with modest effort integrating  existing open
+source software components.  For those seeking to implement the framework, full details on downloading, installing, configuring and using the components are maintained on the IOOS Github site\footnote{\url{https://github.com/ioos/model-data-framework/}.}.
+
+
 We first describe the model data strategy used by IOOS, then describe
 the techniques and tools we have developed to make this strategy
 easier and more effective for smaller research groups. 
 After presenting the use cases we discuss lessons learned and the need for future work. 
-We hope the advantages of implementing this type of framework will be clear and will 
-lead to more use of standardized data services and tools.  The full implementation details
-can be found on the IOOS Github site\footnote{\url{https://github.com/ioos/model-data-framework/}.}.
-
-
 
 
 
@@ -147,7 +153,7 @@ modelers into aggregated, standardized datasets delivered by web
 services (Signell, 2010; Signell and Snowden, 2014). The
 transformation happens virtually, using NetCDF Markup Language (NcML),
 with XML templates created by specialists with knowledge of the standards,
-and then simply modified by modellers to suit their output. The data are represented
+and then modified by modellers to suit their output. The data are represented
 internally in the TDS with a~common data model aligned with the
 CF Conventions which delivers the data through
 a~variety of web services, including OPeNDAP, WMS and NetCDF Subset
@@ -159,24 +165,9 @@ In addition to tools to provide standardized data distribution and
 access, it is also useful to have tools that allow investigators to
 search for datasets based on geospatial extent, time range, keywords and other descriptors 
 (e.g. variables of interest).  
-There are many tools that enable
-searching across metadata that describe distributed geospatial
-datasets: GeoNetwork, Geoportal Server, GI-cat, CKAN, DKAN
-and pycsw. In particular, Python-based CKAN\footnote{CKAN, The open
-  source data portal software, available at \url{http://ckan.org/}.}
-and its Drupal-based competitor DKAN\footnote{DKAN,
-  \url{http://nucivic.com/dkan/}.} are widely used to implement
-governmental open data portals (see for instance data.gov,
-data.gov.au, data.gov.uk). These tools 
- provide off-the-shelf
-ready-to-use solutions for efficient data discovery. The CKAN search
-interface includes fuzzy search over keywords, faceted
-filtering for dataset browsing, and, if the spatial extension is
-enabled, geographic filtering and preview of datasets.  CKAN can also accept queries
-using the OGC Catalogue Service for the Web (CSW) by installing a plugin for pycsw, a Python-based implementation implementation of the CSW service.  The interface and the underlying
-catalog engine can be customized to achieve more powerful data
-discovery solutions. However, its customization through extensions
-development may be too technically challenging for smaller research groups.  For these groups, a stand-along instance of pycsw allows sophisticated CSW queries in a lightweight, easy to install, OGC-certified compliant package \footnote{\url{http://pycsw.org/}.}
+There are many catalogue systems that can ingest metadata from ISO records or other sources, and enable searching across distributed geospatial
+datasets, including GeoNetwork, Geoportal Server, GI-cat, CKAN, DKAN
+and pycsw. 
 
 \section{A~procedure for small research groups}
 
@@ -214,31 +205,34 @@ information the TDS uses to virtually aggregate the data and add or modify
 metadata to meet the CF Conventions. When this NcML file is accessed
 through the TDS, the aggregated standardized dataset can then be
 accessed through all the TDS web services, including OPeNDAP, NetCDF
-Subset Service, WMS and the ncISO metadata service.  If the dataset has one dimensional longitude, latitude and depth coorindates, it can also be delivered via the OGC Web Coverage Service. This NcML approach is convenient for model data providers as no reload or
+Subset Service, WMS and the ncISO metadata service.  If the dataset has one dimensional longitude, latitude and depth coorindates, it can also be delivered via the OGC Web Coverage Service (WCS). This NcML approach is convenient for model data providers as no reload or
 restart of the TDS is necessary.  This is quite useful, as modelers often have a~large collection of simulations that test
 the sensitivity to changes in parameterizations, data
 assimilation techniques, boundary conditions, etc.
 
 For forecast models, a slightly different approach is needed, as forecast time periods
 overlap and the files cannot be simply joined along the time dimension.  In this case, the NcML Forecast Model Run Collection is used, which virtually creates a "best time series"  and other dataset views of the forecast collection.  This type of NcML must
-be added to static TDS catalogs. While new forecast data can be added to
+be added to static TDS catalogues. While new forecast data can be added to
 forecast aggregation without reloading the server, any modification to
-the static catalogs requires a~restart of the TDS. This is usually not
+the static catalogues requires a~restart of the TDS. This is usually not
 a~major issue as groups typically only have one or two forecast models
-running.   For details of how to create NcML for different types of model data, see the 
+running.   
 
 \subsection{Data access}
 
 Typically, users access the data directly from their developer
 environment, e.g.  Matlab$^{\text{\textregistered}}$ or Python, using
-the OPeNDAP service. If if the extracted data are to be used
+the OPeNDAP service. This allows them to extract just the part of the dataset
+they need directly into their workflow, without downloading any files. 
+If if the extracted data are to be used
 repeatedly, however, a~local copy of the extracted data can be saved as
 a~NetCDF file using the TDS NetCDF Subset Service. Fortunately, both
 the Matlab$^{\text{\textregistered}}$ and Python tools can open
 a~remote OPeNDAP dataset or a~local NetCDF file using exactly the same
 syntax, so users need only 
 %%% ec added: to 
-to learn one syntax for extracting data.
+to learn one syntax for extracting data.  Although we focus on Matlab and Python here, any software that can read NetCDF files can open the URL of a remote OPeNDAP dataset just as if it were a local NetCDF File.  There is a list of over 50 software packages that can read NetCDF and OPeNDAP maintained by Unidata, including ArcGIS, IDL, Mathematica and more\footnote{Software for Manipulating or Displaying NetCDF Data, available at 
+  \url{http://www.unidata.ucar.edu/software/netcdf/software.html}}. 
 
 For Matlab$^{\text{\textregistered}}$, NCTOOLBOX\footnote{NCTOOLBOX,
   A~Matlab$^{\text{\textregistered}}$ toolbox for working with common
@@ -250,21 +244,18 @@ Python, the Iris package\footnote{IRIS, A~Python library for
   Meteorology and Climatology, available at
   \url{http://scitools.org.uk/iris/}} from the British Met Office
 provides support for the CF Conventions by leveraging the Unidata
-NetCDF C library behind a~Python interface.
+NetCDF C library behind a~Python interface.  Both of these tools allow users to work with any CF-Compliant model without writing any model-specific code:  the user requests data from a 
+specified time and geospatial extent, and the software automatically returns the longitude, latitude, depth and time coordinates in standard form, regardless of the variable naming conventions, time units, and vertical coordinate system specification in the original native model data files.  This greatly facilitates model-model comparison and skill assessment, as users can bring in data from a variety of models without specialized knowledge of any of them. 
 
-\subsection{Data search}
+\subsection{Data Search}
 
-We use pycsw, a lightweight package that can be installed
-in minutes, for cataloging
-the datasets and providing a~standardized search capability.  Although it is easy to install, configure and maintain, it provides rapid responses to sophisticated CSW queries which typically include a geospatial bounding box, a temporal extent, and text strings that should be either included or excluded. 
-It ingests ISO~19115 compliant metadata, and can be controlled via simple command
-line arguments, providing easy scripting capability.
+Although there are many free metadata catalogue systems that can enable geospatial and temporal searches across distributed data, here we use pycsw\footnote{\url{http://pycsw.org/}.}, a lightweight system that provides an OGC-certified compliant catalogue Service for the Web (CSW) search capability.  It is easy to install, configure and maintain via the command line, allowing easy scripting capability.  The CSW service allows for complex queries to be constructed.  These queries often include a geospatial bounding box, a temporal extent, and specific text strings that should be either included or excluded.  We populate the pycsw catalogue by ingesting ISO~19115 compliant metadata records that have been collected from selected TDS datasets. 
 
-To control which datasets are harvested, we run a~Python script that
-crawls specific local or remote THREDDS catalogs, and enables
-filtering on a~dataset by dataset level (see the code in Fig.~2). For
-example, we can specify for a~specific THREDDS catalog that metadata
-from .ncml files should be harvested, but data from .nc files should be
+The TDS datasets selected by running a~Python script that
+crawls a list of local or remote THREDDS catalogues, enabling
+filtering on specific types of datasets (see the code in Fig.~2). For
+example, we can specify for a~specific THREDDS catalogue that only metadata
+from .ncml files should be harvested, while data from .nc files should be
 ignored. For hindcast datasets configured with the
 \textit{datasetScan} approach described previously, this allows only
 the aggregated datasets to be harvested, and the underlining finer
@@ -300,23 +291,22 @@ models.
 During oceanographic experiments, real-time data are ingested in the CMRE scientific
 data management infrastructure, facilitating data sharing among CMRE scientists and partners.  
 A~continuous deployment service automatically extracts metadata from datasets and populate the CMRE data repository and data catalogue, and newly acquired observations and data products become available to CMRE researchers in near real-time through the catalogue interface.
-The CMRE data management infrastructure adopts open standards for data interoperability and services developed by by the Open
-Geospatial Consortium (OGC) for geospatial data, enforcing compliance to NATO (Allied Geographical Publications, STANAGS) and international standards for spatial data (ISO 19100 family, ISO/TC 211). 
+The CMRE data management infrastructure adopts open standards for data interoperability and OGC services for geospatial data, enforcing compliance to NATO (Allied Geographical Publications, STANAGS) and international standards for spatial data (ISO 19100 family, ISO/TC 211). 
 
-The first version of the data management infrastructure was heavily tailored on the data formats and the best practice adopted for data within CMRE. It integrated Python scripts, a~web-based scheduler (Jenkins), and a versioning software (Git) to extract metadata from datasets and populate the data repository, which combined a file storage and a geo-data server (GeoServer). The GeoServer was used to implement OGC services such as WCS and WMS. Moreover, a geo-catalogue (GeoNetwork) and an open data catalogue (CKAN) were integrated in the infrastructure to complement it with a a user friendly interface for data search and with a catalogue service (CSW) to be used for machine-to-machine data discovery. 
+The first version of the data management infrastructure was heavily tailored on the data formats and the best practice adopted for data within CMRE. It integrated Python scripts, a~web-based scheduler (Jenkins), and a versioning software (Git) to extract metadata from datasets and populate the data repository, which combined a file storage and a data server (GeoServer). The GeoServer was used to implement OGC services such as WCS and WMS and CKAN and Geonetwork were used to provide a user friendly interface for data search. 
 
-This version of the data management infrastructure, leveraging OGC services, suited well geo-spatial data, whilst the management of model data was limited to support for data discovery. In particular, modeling and simulation activities, which need to compare models with each other and with observations data to assess and to improve model predictive skills, required the storage of netCDF files from model runs and observations on local hard drives in order to run model-specific routines, mainly written in Matlab$^{\text{\textregistered}}$, for visualization and analysis. Moreover, exchange of data with other scientists was mainly done via FTP or via exchange of physical media. As a result, duplication of files and loss of data were frequent. 
+This version of the data management infrastructure, leveraging OGC services, worked well for observed data, but services were not in place to access model data.  Because both observed and model data are required for model skill assessment, modelers were not using the existing infrastructure for these activities.  They stored netcdf files on local hard drives and for visualization and analysis, ran model-specific routines for each type of model, mainly written in Matlab$^{\text{\textregistered}}$. Moreover, exchange of data with other scientists was mainly done via FTP or via exchange of physical media. As a result, duplication of files and loss of data were frequent. 
 
 To advance the management of ocean data, a prototype demonstrating the benefits of the IOOS approach was developed and tested.  
 Data from REP14-MED cruise, conducted in 2014 in the Sardinian Sea, were used for evaluating the approach. 
 We installed a~THREDDS data server and setup NcML for each of the collection of files that represented a~REP14-MED model simulation. 
 Although a~different NcML file is required for each collection of files, NcML files for a~particular type of model (e.g. ROMS), differ only in the specifics of the simulation (e.g. title, abstract, principal investigator, etc), making it possible to use an example NcML file as a~template for other simulations. 
 Knowledge on standard conventions is required to create the initial NcML file, but then it can be hand off to modelers to copy, modify and use on their own.
-The same approach was used also for observations, in particular to enforce the compliance to CF Conventions of glider data. 
+The same approach was used also for observations, in particular to enforce CF-compliance for glider data. 
 
 In both cases, no modification of the original data was necessary, because the NcML transformations were applied on the fly when accessing the data through OPeNDAP. Since the original data generation workflow was not affected in any way, legacy software can continue to access the data using the original formats. However, the integration in the data management infrastructure of the OPeNDAP service empowered the scientists with a powerful alternative for accessing data, letting them free to access only the subset of data they really need, avoiding to download huge files on they local hard drives. Moreover, to share the data it is now sufficient to share the URL pointing to the dataset, avoiding unnecessary duplications and use of external media. This is a key advantage of the approach, in particular when, as in this case, such data are used as an input source of information by several users and services.
 
-To test also the potential integration with the CMRE data catalogue, the ncISO service was used to generate automatically metadata directly from the datasets ingested in THREDDS. To crawl the specific THREDDS catalogue created for REP-14-MED data, we deployed the python script in Fig.~1. The generated metadata are ISO 19115 compliant, and can be published through a OGC CSW server such as pycsw and be harvested by geocatalogue, such as CKAN or GeoNetwork. 
+To test the potential integration with the CMRE data catalogue, the ncISO service was used to generate automatically metadata directly from the datasets ingested in THREDDS. To crawl the specific THREDDS catalogue created for REP-14-MED data, we deployed the Python script in Fig.~2. The generated metadata are ISO 19115 compliant, and can be published through a OGC CSW server such as pycsw and be harvested by geo-catalogue, such as CKAN or GeoNetwork. 
 Compared with the original approach used for metadata extraction, ncISO metadata generated from THREDDS have the advantage to describe better some dataset features, such as as variable ranges. Other features, such as cruise information, can be customized through NcML and the Extensible Stylesheet Language schema which is used for configuring ncISO outputs. 
 
 With the datasets standardized via NcML, accessible via OPeNDAP, and ISO~19115 compliant metadata that can be published via pycsw, the
@@ -324,7 +314,7 @@ last task needed was to develop a~simple CSW filtering capability for Matlab$^{\
 OWSLib\footnote{\url{https://geopython.github.io/OWSLib/}.} library, but nothing existed for Matlab$^{\text{\textregistered}}$. To meet
 this need, we developed a~simple CSW filtering function for Matlab$^{\text{\textregistered}}$ that takes a~bounding box, temporal extent, and a~keyword on input, and retrieves all OPeNDAP data URL that match the criteria.
 
-To demonstrate the approach, we first extracted sea surface salinity from all REP14-MED models in the CMRE data catalog. We accomplished this by 
+To demonstrate the approach, we first extracted sea surface salinity from all REP14-MED models in the CMRE data catalogue. We accomplished this by 
 formulating a spatio-temproal CSW filtering for the REP14-MED region and time period in Matlab$^{\text{\textregistered}}$, including a search for the text
 string ``sea\_water\_salinity'', the CF Standard Name for salinity. This search returned metadata records from four datasets that matched the criteria, and then obtained the OPeNDAP endpoints from the metadata records. 
 We then opened each endpoint in Matlab$^{\text{\textregistered}}$ using NCTOOLBOX and extracted the sea surface salinity data for a~specific time during the REP14-MED
@@ -369,12 +359,17 @@ datasets. Although NcML files can be edited with a~text editor
 starting from supplied templates, the cut-and-paste manual editing of
 NcML files is prone to error, such as copying NcML from an existing
 simulation and not removing the attributes for a~variable that
-was no longer being output. To solve this problem, we simplified the
-editing task by having modelers just to modify a~simple YAML\footnote{\url{http://www.yaml.org/about.html}.} input file which contained only simulation
-specific information. Then we provided researchers with a~python
-script that reads the YAML input file and produces a valid NcML file. The python script
+was no longer being output. In addition, there is a lot of repetitive
+attribute information that needs to be added for each variable, which
+varies from simulation to simulation. 
+
+To solve this problem, we simplified the
+editing task by having modelers edit a~simple YAML\footnote{\url{http://www.yaml.org/about.html}.} input file which contained only simulation
+specific information. Then we provided researchers with a~Python
+script that reads the YAML input file and produces a valid NcML file. The Python script
 was developed for the COAWST/ROMS models, but could easily be expanded
-to cover other model types.
+to cover other model types.  It is not specific to USGS, and could be 
+used to simply the generation of NcML at CMRE or within any modeling group. 
 
 Because modelers wanted selected model runs to be displayed in the
 official USGS CMG Portal, we provided a~simple mechanism where they
@@ -388,7 +383,7 @@ USGS) need only to query the CSW service for records where the
 utilize the WMS 
 %%% ec: endpoints --> viewer 
 viewer to enable preview of the data in the browser
-(Fig.~9).
+(Fig.~9).  This means that the USGS modelers control which simulations appear in the portal without any involvement of the portal developers.  
 
 \section{Discussion}
 
@@ -569,15 +564,15 @@ doi:\href{http://dx.doi.org/10.3390/jmse2010194}{10.3390/jmse2010194}, 2014.
 
 \begin{figure}
 \includegraphics[width=130mm]{framework_slide.png}
-\caption{The IOOS Model Data Framework.  Collections of non-standard NetCDF (or GRIB) files are transformed via NetCDF Markup Language (NcML) into aggregated, standardized datasets that can be represented internally in the THREDDS Data Server in a common data model.  This data in common form can then be delivered via a number of standard services, including map services (WMS), data services (OPeNDAP, WCS and NetCDF Subset Service), and metadata services (ncISO).  This services in turn feed web portals, scientific analysis workflows in Python or Matlab,  and catalog services. }
+\caption{The IOOS Model Data Framework.  Collections of non-standard NetCDF (or GRIB) files are transformed via NetCDF Markup Language (NcML) into aggregated, standardized datasets that can be represented internally in the THREDDS Data Server in a common data model.  This data in common form can then be delivered via a number of standard services, including map services (WMS), data services (OPeNDAP, WCS and NetCDF Subset Service), and metadata services (ncISO).  This services in turn feed web portals, scientific analysis workflows in Python or Matlab,  and catalogue services. }
 \label{osd-2015-0064-f00.pdf}
 \end{figure}
 
 
 \begin{figure}
 \includegraphics[width=130mm]{os-2015-64-discussions-f01.png}
-\caption{Snippet of Python code to crawl THREDDS catalogs. This code
-  crawls two catalogs that contain forecast model runs and glider
+\caption{Snippet of Python code to crawl THREDDS catalogues. This code
+  crawls two catalogues that contain forecast model runs and glider
   data. \copyright~North Atlantic Threaty Organization, all rights reserved. Provided by STO-CMRE (\url{www.cmre.nato.int}).}
 \label{osd-2015-0064-f01.pdf}
 \end{figure}
