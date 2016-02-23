@@ -310,12 +310,12 @@ To test the potential integration with the CMRE data catalogue, the ncISO servic
 Compared with the original approach used for metadata extraction, ncISO metadata generated from THREDDS have the advantage to describe better some dataset features, such as as variable ranges. Other features, such as cruise information, can be customized through NcML and the Extensible Stylesheet Language schema which is used for configuring ncISO outputs. 
 
 With the datasets standardized via NcML, accessible via OPeNDAP, and ISO~19115 compliant metadata that can be published via pycsw, the
-last task needed was to develop a~simple CSW filtering capability for Matlab$^{\text{\textregistered}}$ users. Python users had the powerful
+last task needed was to develop a~simple CSW search capability for Matlab$^{\text{\textregistered}}$ users. Python users had the powerful
 OWSLib\footnote{\url{https://geopython.github.io/OWSLib/}.} library, but nothing existed for Matlab$^{\text{\textregistered}}$. To meet
-this need, we developed a~simple CSW filtering function for Matlab$^{\text{\textregistered}}$ that takes a~bounding box, temporal extent, and a~keyword on input, and retrieves all OPeNDAP data URL that match the criteria.
+this need, we developed a~simple CSW search function for Matlab$^{\text{\textregistered}}$ that takes a~bounding box, temporal extent, and a~keyword on input, and retrieves all OPeNDAP data URL that match the criteria.
 
 To demonstrate the approach, we first extracted sea surface salinity from all REP14-MED models in the CMRE data catalogue. We accomplished this by 
-formulating a spatio-temproal CSW filtering for the REP14-MED region and time period in Matlab$^{\text{\textregistered}}$, including a search for the text
+formulating a  CSW search for the REP14-MED region and time period in Matlab$^{\text{\textregistered}}$, including a search for the text
 string ``sea\_water\_salinity'', the CF Standard Name for salinity. This search returned metadata records from four datasets that matched the criteria, and then obtained the OPeNDAP endpoints from the metadata records. 
 We then opened each endpoint in Matlab$^{\text{\textregistered}}$ using NCTOOLBOX and extracted the sea surface salinity data for a~specific time during the REP14-MED
 experiment (the results are shown in Fig.~3). Finally, we compared interpolated glider data to extracted profiles from four models along the~glider track, using
